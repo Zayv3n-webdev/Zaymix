@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaymix — life needs music</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login / Register Modal -->
+    <div id="loginModal" class="login-modal hidden">
+        <div class="login-box">
+            <button id="loginModalClose" class="login-close-btn"><i class="fas fa-times"></i></button>
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active-tab" id="tabLogin">Masuk</button>
+                <button class="auth-tab" id="tabRegister">Daftar</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="authLoginForm" class="auth-form">
+                <div class="auth-header">
+                    <i class="fas fa-headphones auth-icon"></i>
+                    <h2>Selamat datang kembali!</h2>
+                    <p>Masuk untuk fitur eksklusif & sinkronisasi data</p>
+                </div>
+                <div class="auth-field">
+                    <label class="auth-label"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="loginUsername" class="auth-input" placeholder="Masukkan username...">
+                </div>
+                <div class="auth-field">
+                    <label class="auth-label"><i class="fas fa-lock"></i> Password</label>
+                    <div class="auth-input-wrap">
+                        <input type="password" id="loginPassword" class="auth-input" placeholder="Masukkan password...">
+                        <button class="auth-eye-btn" id="toggleLoginPwd"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <div id="loginError" class="auth-error hidden"></div>
+                <button id="loginSubmitBtn" class="auth-submit-btn">
+                    <i class="fas fa-sign-in-alt"></i> Masuk
+                </button>
+                <button id="loginAsGuest" class="auth-guest-btn">
+                    <i class="fas fa-user-secret"></i> Lanjutkan sebagai Tamu
+                </button>
+            </div>
+
+            <!-- Register Form -->
+            <div id="authRegisterForm" class="auth-form hidden">
+                <div class="auth-header">
+                    <i class="fas fa-user-plus auth-icon"></i>
+                    <h2>Buat akun gratis</h2>
+                    <p>Akses fitur premium & simpan progresmu</p>
+                </div>
+                <div class="auth-field">
+                    <label class="auth-label"><i class="fas fa-user"></i> Username *</label>
+                    <input type="text" id="regUsername" class="auth-input" placeholder="Min. 3 karakter...">
+                </div>
+                <div class="auth-field">
+                    <label class="auth-label"><i class="fas fa-envelope"></i> Email *</label>
+                    <input type="email" id="regEmail" class="auth-input" placeholder="email@kamu.com">
+                </div>
+                <div class="auth-field">
+                    <label class="auth-label"><i class="fas fa-lock"></i> Password *</label>
+                    <div class="auth-input-wrap">
+                        <input type="password" id="regPassword" class="auth-input" placeholder="Min. 6 karakter...">
+                        <button class="auth-eye-btn" id="toggleRegPwd"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="auth-field">
+                    <label class="auth-label"><i class="fas fa-star"></i> Avatar Warna</label>
+                    <div class="auth-avatar-row" id="authAvatarRow">
+                        <button class="auth-avatar-pick active-avatar" data-color="#7c3aed" style="background:#7c3aed"></button>
+                        <button class="auth-avatar-pick" data-color="#ec4899" style="background:#ec4899"></button>
+                        <button class="auth-avatar-pick" data-color="#06b6d4" style="background:#06b6d4"></button>
+                        <button class="auth-avatar-pick" data-color="#10b981" style="background:#10b981"></button>
+                        <button class="auth-avatar-pick" data-color="#f59e0b" style="background:#f59e0b"></button>
+                        <button class="auth-avatar-pick" data-color="#f87171" style="background:#f87171"></button>
+                    </div>
+                </div>
+                <div id="regError" class="auth-error hidden"></div>
+                <button id="regSubmitBtn" class="auth-submit-btn">
+                    <i class="fas fa-user-plus"></i> Buat Akun
+                </button>
+            </div>
+
+            <!-- Pro Features List -->
+            <div class="auth-pro-list">
+                <div class="auth-pro-item"><i class="fas fa-crown"></i> Sinkronisasi data lintas perangkat</div>
+                <div class="auth-pro-item"><i class="fas fa-chart-line"></i> Statistik mendengarkan lengkap</div>
+                <div class="auth-pro-item"><i class="fas fa-palette"></i> Tema & kustomisasi eksklusif</div>
+                <div class="auth-pro-item"><i class="fas fa-lock-open"></i> Playlist private & publik</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-inner">
+            <div class="splash-logo">
+                <i class="fas fa-headphones splash-icon"></i>
+                <span class="splash-brand">Zaymix</span>
+            </div>
+            <p class="splash-slogan">life needs music</p>
+            <div class="splash-loader-ring">
+                <div class="splash-ring"></div>
+                <div class="splash-ring delay1"></div>
+                <div class="splash-ring delay2"></div>
+            </div>
+            <div class="splash-letters">
+                <span>L</span><span>o</span><span>a</span><span>d</span><span>i</span><span>n</span><span>g</span><span>.</span><span>.</span><span>.</span>
+            </div>
+            <div id="splashStatus" class="splash-status">Memuat playlist…</div>
+        </div>
+                                </div>
+    </div>
+    <div class="video-background-container">
+        <video id="backgroundVideo" autoplay loop muted playsinline></video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <!-- Custom user-uploaded background video (loops behind everything) -->
+    <div id="customBgVideoContainer" class="custom-bg-video-container hidden">
+        <video id="customBgVideo" autoplay loop muted playsinline class="custom-bg-video"></video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <!-- Global Fixed Hamburger (always at screen edge) -->
+    <button id="hamburgerBtn" class="hamburger-btn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+
+    <!-- Hamburger Sidebar Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- Sidebar Menu -->
+    <nav id="sidebarMenu" class="sidebar-menu">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-music"></i>
+                <span>Zaymix</span>
+            </div>
+            <button id="closeSidebarBtn" class="close-sidebar-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Main Nav Panel -->
+        <div id="sidebarMainPanel" class="sidebar-panel active-panel">
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item active-nav" id="navHome">
+                    <i class="fas fa-home"></i><span>Home</span>
+                </li>
+                <li class="sidebar-nav-item" id="navDownload">
+                    <i class="fas fa-download"></i><span>Download Music</span>
+                    <span class="nav-badge" id="downloadBadge" style="display:none">0</span>
+                </li>
+                <li class="sidebar-nav-item" id="navFavorites">
+                    <i class="fas fa-heart"></i><span>Favorites</span>
+                    <span class="nav-badge fav-badge" id="favoritesBadge" style="display:none">0</span>
+                </li>
+                <li class="sidebar-nav-item" id="navRecent">
+                    <i class="fas fa-clock-rotate-left"></i><span>Recently Played</span>
+                </li>
+                <li class="sidebar-nav-item" id="navEqualizer">
+                    <i class="fas fa-sliders"></i><span>Equalizer</span>
+                </li>
+                <li class="sidebar-nav-item" id="navRequest">
+                    <i class="fas fa-paper-plane"></i><span>Request Lagu</span>
+                </li>
+                <li class="sidebar-nav-item" id="navStats">
+                    <i class="fas fa-chart-pie"></i><span>Statistik Dengar</span>
+                </li>
+                <li class="sidebar-nav-item" id="navBugReport">
+                    <i class="fas fa-bug"></i><span>Lapor Bug / Saran</span>
+                </li>
+                <li class="sidebar-nav-divider"></li>
+                <li class="sidebar-nav-item" id="navLogin">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="navLoginText">Login / Daftar</span>
+                </li>
+                <li class="sidebar-nav-item" id="navSettings">
+                    <i class="fas fa-gear"></i><span>Settings</span>
+                </li>
+                <li class="sidebar-nav-item" id="navAbout">
+                    <i class="fas fa-circle-info"></i><span>Tentang Zaymix</span>
+                </li>
+
+            </ul>
+        </div>
+
+        <!-- Favorites Sub-Panel -->
+        <div id="sidebarFavPanel" class="sidebar-panel">
+            <div class="sidebar-subpanel-header">
+                <button class="sidebar-back-btn" id="backFromFav"><i class="fas fa-arrow-left"></i></button>
+                <span><i class="fas fa-heart" style="color:#f472b6;margin-right:6px"></i>Favorites</span>
+            </div>
+            <div id="favoritesList" class="sidebar-sublist"></div>
+        </div>
+
+        <!-- Download Sub-Panel -->
+        <div id="sidebarDownPanel" class="sidebar-panel">
+            <div class="sidebar-subpanel-header">
+                <button class="sidebar-back-btn" id="backFromDown"><i class="fas fa-arrow-left"></i></button>
+                <span><i class="fas fa-download" style="color:#60a5fa;margin-right:6px"></i>Downloads</span>
+            </div>
+            <div id="downloadList" class="sidebar-sublist"></div>
+        </div>
+
+        <!-- Recently Played Sub-Panel -->
+        <div id="sidebarRecentPanel" class="sidebar-panel">
+            <div class="sidebar-subpanel-header">
+                <button class="sidebar-back-btn" id="backFromRecent"><i class="fas fa-arrow-left"></i></button>
+                <span><i class="fas fa-clock-rotate-left" style="color:#34d399;margin-right:6px"></i>Recently Played</span>
+            </div>
+            <div id="recentList" class="sidebar-sublist"></div>
+        </div>
+
+        <!-- Equalizer Sub-Panel -->
+        <div id="sidebarEqPanel" class="sidebar-panel">
+            <div class="sidebar-subpanel-header">
+                <button class="sidebar-back-btn" id="backFromEq"><i class="fas fa-arrow-left"></i></button>
+                <span><i class="fas fa-sliders" style="color:#fbbf24;margin-right:6px"></i>Equalizer</span>
+            </div>
+            <div class="eq-panel-content">
+                <div class="eq-presets-row">
+                    <button class="eq-preset active-preset" data-preset="flat">Flat</button>
+                    <button class="eq-preset" data-preset="bass">Bass+</button>
+                    <button class="eq-preset" data-preset="pop">Pop</button>
+                    <button class="eq-preset" data-preset="rock">Rock</button>
+                    <button class="eq-preset" data-preset="jazz">Jazz</button>
+                    <button class="eq-preset" data-preset="electronic">EDM</button>
+                </div>
+                <div class="eq-sliders-wrap" id="eqSlidersWrap">
+                    <!-- Generated by JS -->
+                </div>
+                <div class="eq-master-row">
+                    <span class="eq-label">Master</span>
+                    <input type="range" id="eqMasterGain" min="-12" max="12" step="1" value="0" class="eq-master-slider">
+                    <span id="eqMasterVal" class="eq-val">0 dB</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Lagu Sub-Panel -->
+        <div id="sidebarRequestPanel" class="sidebar-panel">
+            <div class="sidebar-subpanel-header">
+                <button class="sidebar-back-btn" id="backFromRequest"><i class="fas fa-arrow-left"></i></button>
+                <span><i class="fas fa-paper-plane" style="color:#a78bfa;margin-right:6px"></i>Request Lagu</span>
+            </div>
+            <div class="request-panel-content">
+                <p class="request-intro">Mau dengerin lagu tertentu? Kirim requestmu di sini!</p>
+                <div id="requestFormWrap">
+                    <div class="req-field">
+                        <label class="req-label"><i class="fas fa-music"></i> Judul Lagu *</label>
+                        <input type="text" id="reqTitle" class="req-input" placeholder="Contoh: Blinding Lights">
+                    </div>
+                    <div class="req-field">
+                        <label class="req-label"><i class="fas fa-user"></i> Artis *</label>
+                        <input type="text" id="reqArtist" class="req-input" placeholder="Contoh: The Weeknd">
+                    </div>
+                    <div class="req-field">
+                        <label class="req-label"><i class="fas fa-tag"></i> Genre</label>
+                        <select id="reqGenre" class="req-input req-select">
+                            <option value="">Pilih genre...</option>
+                            <option>Pop</option><option>R&B / Soul</option>
+                            <option>Rock</option><option>Hip-Hop</option>
+                            <option>Jazz</option><option>Electronic</option>
+                            <option>Indie</option><option>K-Pop</option>
+                            <option>Dangdut</option><option>Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="req-field">
+                        <label class="req-label"><i class="fas fa-link"></i> Link (opsional)</label>
+                        <input type="url" id="reqLink" class="req-input" placeholder="Spotify / YouTube link...">
+                    </div>
+                    <div class="req-field">
+                        <label class="req-label"><i class="fas fa-comment"></i> Pesan (opsional)</label>
+                        <textarea id="reqNote" class="req-input req-textarea" placeholder="Dedicated to someone? Tulis di sini..." rows="2"></textarea>
+                    </div>
+                    <button id="submitRequestBtn" class="req-submit-btn">
+                        <i class="fas fa-paper-plane"></i> Kirim Request
+                    </button>
+                </div>
+                <!-- Success state -->
+                <div id="requestSuccess" class="req-success hidden">
+                    <i class="fas fa-check-circle req-success-icon"></i>
+                    <div class="req-success-title">Request Terkirim! 🎉</div>
+                    <div class="req-success-sub">Makasih udah request, akan segera diproses!</div>
+                    <button id="reqSendAnother" class="req-another-btn">Request Lagi</button>
+                </div>
+                <div id="requestHistory" class="request-history"></div>
+            </div>
+        </div>
+
+        <!-- Settings Sub-Panel -->
+        <div id="sidebarSettingsPanel" class="sidebar-panel">
+            <div class="sidebar-subpanel-header">
+                <button class="sidebar-back-btn" id="backFromSettings"><i class="fas fa-arrow-left"></i></button>
+                <span><i class="fas fa-gear" style="color:#94a3b8;margin-right:6px"></i>Settings</span>
+            </div>
+            <div class="settings-panel-content">
+                <div class="setting-group-label">Tampilan</div>
+                <div class="setting-row">
+                    <div class="setting-info"><i class="fas fa-moon"></i><span>Dark Mode</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="settingDarkMode" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-info"><i class="fas fa-expand"></i><span>Ukuran Card</span></div>
+                    <select id="settingCardSize" class="setting-select">
+                        <option value="compact">Compact</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+                <div class="setting-group-label">Pemutaran</div>
+                <div class="setting-row">
+                    <div class="setting-info"><i class="fas fa-forward"></i><span>Autoplay Next</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="settingAutoplay" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-info"><i class="fas fa-wave-square"></i><span>Crossfade</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="settingCrossfade"><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row crossfade-duration hidden" id="crossfadeDurationRow">
+                    <div class="setting-info" style="padding-left:1.5rem"><i class="fas fa-clock"></i><span>Durasi Crossfade</span></div>
+                    <div class="setting-range-wrap">
+                        <input type="range" id="crossfadeDuration" min="1" max="8" step="1" value="3" class="setting-range">
+                        <span id="crossfadeVal" class="setting-range-val">3s</span>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-info"><i class="fas fa-volume-high"></i><span>Normalize Volume</span></div>
+                    <label class="toggle-switch"><input type="checkbox" id="settingNormalize"><span class="toggle-slider"></span></label>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Stats Sub-Panel -->
+        <div id="sidebarStatsPanel" class="sidebar-panel">
+            <div class="sidebar-subpanel-header">
+                <button class="sidebar-back-btn" id="backFromStats"><i class="fas fa-arrow-left"></i></button>
+                <span><i class="fas fa-chart-pie" style="color:#10b981;margin-right:6px"></i>Statistik</span>
+            </div>
+            <div class="stats-panel-content" id="statsPanelContent"></div>
+        </div>
+
+        <!-- Profile / Account Settings Sub-Panel -->
+        <div id="sidebarProfilePanel" class="sidebar-panel">
+            <div class="sidebar-subpanel-header">
+                <button class="sidebar-back-btn" id="backFromProfile"><i class="fas fa-arrow-left"></i></button>
+                <span id="profilePanelHead"><i class="fas fa-user-circle" style="margin-right:6px"></i>Akun Saya</span>
+            </div>
+            <div class="profile-panel-content" id="profilePanelContent">
+                <!-- Rendered by JS -->
+            </div>
+        </div>
+
+        <!-- Bug Report Sub-Panel -->
+        <div id="sidebarBugPanel" class="sidebar-panel">
+            <div class="sidebar-subpanel-header">
+                <button class="sidebar-back-btn" id="backFromBug"><i class="fas fa-arrow-left"></i></button>
+                <span><i class="fas fa-bug" style="color:#f87171;margin-right:6px"></i>Lapor Bug / Saran</span>
+            </div>
+            <div class="request-panel-content">
+                <p class="request-intro">Ketemu bug atau punya ide fitur keren? Kirim ke sini!</p>
+                <div id="bugFormWrap">
+                    <div class="req-field">
+                        <label class="req-label"><i class="fas fa-tag"></i> Jenis</label>
+                        <select id="bugType" class="req-input req-select">
+                            <option value="bug">🐛 Bug / Error</option>
+                            <option value="feature">✨ Request Fitur Baru</option>
+                            <option value="ui">🎨 Masalah Tampilan</option>
+                            <option value="performance">⚡ Performa Lambat</option>
+                            <option value="other">💬 Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="req-field">
+                        <label class="req-label"><i class="fas fa-heading"></i> Judul *</label>
+                        <input type="text" id="bugTitle" class="req-input" placeholder="Contoh: Tombol X timer tidak bisa diklik">
+                    </div>
+                    <div class="req-field">
+                        <label class="req-label"><i class="fas fa-align-left"></i> Detail *</label>
+                        <textarea id="bugDetail" class="req-input req-textarea" rows="3" placeholder="Ceritakan detail — langkah reproduksi, device, browser…"></textarea>
+                    </div>
+                    <div class="req-field">
+                        <label class="req-label"><i class="fas fa-user"></i> Nama (opsional)</label>
+                        <input type="text" id="bugName" class="req-input" placeholder="Nama kamu...">
+                    </div>
+                    <div class="req-field">
+                        <label class="req-label"><i class="fas fa-image"></i> Screenshot (opsional)</label>
+                        <label class="bg-upload-label" style="margin-top:0.25rem" id="bugImageLabel">
+                            <i class="fas fa-upload"></i> <span id="bugImageLabelText">Pilih gambar screenshot...</span>
+                            <input type="file" id="bugImageInput" accept="image/*" class="hidden">
+                        </label>
+                    </div>
+                    <button id="submitBugBtn" class="req-submit-btn" style="background:linear-gradient(135deg,#dc2626,#f87171)">
+                        <i class="fas fa-paper-plane"></i> Kirim Laporan
+                    </button>
+                </div>
+                <div id="bugSuccess" class="req-success hidden">
+                    <i class="fas fa-check-circle req-success-icon" style="color:#10b981"></i>
+                    <div class="req-success-title">Terkirim! Makasih 🙏</div>
+                    <div class="req-success-sub">Laporanmu sudah diterima dan akan segera ditindaklanjuti.</div>
+                    <button id="bugSendAnother" class="req-another-btn">Kirim Lagi</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <p>@raull752 &mdash; Zaymix v2.0</p>
+        </div>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div id="toastNotif" class="toast-notif"></div>
+
+    <!-- Sleep Timer Modal -->
+    <div id="sleepTimerModal" class="sleep-timer-modal hidden">
+        <div class="sleep-timer-box">
+            <div class="sleep-timer-header">
+                <i class="fas fa-moon"></i>
+                <h3>Sleep Timer</h3>
+                <button id="closeSleepModal" class="close-sleep-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="sleepTimerOptions" class="sleep-timer-options">
+                <button class="sleep-opt" data-minutes="5">5 min</button>
+                <button class="sleep-opt" data-minutes="10">10 min</button>
+                <button class="sleep-opt" data-minutes="15">15 min</button>
+                <button class="sleep-opt" data-minutes="30">30 min</button>
+                <button class="sleep-opt" data-minutes="45">45 min</button>
+                <button class="sleep-opt" data-minutes="60">60 min</button>
+                <button class="sleep-opt end-of-song" data-minutes="-1"><i class="fas fa-music"></i> End of song</button>
+            </div>
+            <div id="sleepTimerStatus" class="sleep-timer-status hidden">
+                <div class="sleep-countdown-ring">
+                    <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="rgba(183,108,255,0.15)" stroke-width="4"/><circle id="sleepRingArc" cx="30" cy="30" r="26" fill="none" stroke="#b76cff" stroke-width="4" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="0" transform="rotate(-90 30 30)"/></svg>
+                    <span id="sleepTimerCountdown">30:00</span>
+                </div>
+                <p id="sleepTimerLabel">Music will pause in</p>
+                <button id="cancelSleepTimer" class="cancel-sleep-btn">Cancel Timer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="homePage" class="page active">
+        <!-- Top Navbar (no hamburger - it's global fixed now) -->
+        <div class="top-navbar">
+            <div class="navbar-left-pad"></div>
+            <h1 class="navbar-title">Zaymix</h1>
+            <div class="navbar-actions">
+                <button id="navbarSearchBtn" class="navbar-icon-btn" aria-label="Search" title="Cari lagu">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Background Changer Panel -->
+        <div id="bgChangerPanel" class="bg-changer-panel">
+            <div class="bg-panel-header">
+                <span><i class="fas fa-palette"></i> Pilih Background</span>
+                <button id="closeBgPanel" class="close-bg-panel"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="bg-options-scroll">
+                <div class="bg-section-title">Gradient</div>
+                <div class="bg-swatches" id="bgSwatches"></div>
+                <div class="bg-section-title">Solid</div>
+                <div class="bg-swatches" id="bgSolids"></div>
+                <div class="bg-section-title">Custom Warna</div>
+                <div class="bg-custom-row">
+                    <input type="color" id="bgColor1" class="bg-color-picker" value="#0d0014">
+                    <span class="bg-custom-to">→</span>
+                    <input type="color" id="bgColor2" class="bg-color-picker" value="#2e0050">
+                    <button id="applyCustomBg" class="bg-apply-btn"><i class="fas fa-check"></i> Terapkan</button>
+                </div>
+                <div class="bg-section-title">Upload Gambar</div>
+                <label class="bg-upload-label" id="bgUploadLabel">
+                    <i class="fas fa-image"></i> Pilih gambar dari perangkat
+                    <input type="file" id="bgImageUpload" accept="image/*" class="hidden">
+                </label>
+                <div class="bg-section-title">Upload Video <span class="bg-new-badge">NEW</span></div>
+                <label class="bg-upload-label bg-upload-video" id="bgVideoUploadLabel">
+                    <i class="fas fa-film"></i> Pilih video dari perangkat (loop otomatis)
+                    <input type="file" id="bgVideoUpload" accept="video/*" class="hidden">
+                </label>
+                <div id="bgVideoPreviewWrap" class="bg-video-preview-wrap hidden">
+                    <video id="bgVideoPreview" class="bg-video-preview" autoplay loop muted playsinline></video>
+                    <div class="bg-video-controls">
+                        <span id="bgVideoName" class="bg-video-name">video.mp4</span>
+                        <button id="removeBgVideo" class="bg-remove-video-btn"><i class="fas fa-trash"></i> Hapus</button>
+                    </div>
+                </div>
+                <button id="resetBg" class="bg-reset-btn"><i class="fas fa-rotate-left"></i> Reset Default</button>
+            </div>
+        </div>
+
+        <!-- Search Panel -->
+        <div id="searchPanel" class="search-panel">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search search-icon-inline"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Cari lagu atau artis...">
+                <button id="clearSearchBtn" class="clear-search-btn hidden"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+
+        <!-- HOME VIEW -->
+        <main id="homeView">
+
+            <!-- Hero / Featured -->
+            <section class="home-hero" id="heroSection">
+                <div class="hero-bg-blur" id="heroBgBlur"></div>
+                <div class="hero-content">
+                    <div class="hero-greeting" id="heroGreeting">Selamat datang 👋</div>
+                    <div class="hero-featured-label">Featured</div>
+                    <div class="hero-card" id="heroCard">
+                        <img id="heroArt" src="https://placehold.co/300x300/1a0028/b76cff?text=♪" alt="Featured" class="hero-art">
+                        <div class="hero-info">
+                            <div class="hero-song-title" id="heroTitle">Pilih lagu untuk diputar</div>
+                            <div class="hero-song-artist" id="heroArtist">—</div>
+                            <div class="hero-song-album" id="heroAlbum"></div>
+                            <button class="hero-play-btn" id="heroPlayBtn">
+                                <i class="fas fa-play"></i> Putar Sekarang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recently Played row -->
+            <section class="home-section" id="recentSection" style="display:none">
+                <div class="home-section-header">
+                    <h2 class="home-section-title">Baru Diputar</h2>
+                    <button class="home-see-all" id="seeAllRecent">Lihat Semua <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="home-h-scroll" id="recentRow"></div>
+            </section>
+
+            <!-- Favorites row -->
+            <section class="home-section" id="favSection" style="display:none">
+                <div class="home-section-header">
+                    <h2 class="home-section-title">❤️ Favorit Kamu</h2>
+                    <button class="home-see-all" id="seeAllFav">Lihat Semua <i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="home-h-scroll" id="favRow"></div>
+            </section>
+
+            <!-- All songs grid -->
+            <section class="home-section">
+                <div class="home-section-header">
+                    <h2 class="home-section-title" id="homeSectionLabel">Semua Lagu</h2>
+                </div>
+                <div id="songList" class="song-grid">
+                    <!-- loading state rendered by JS -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- SEARCH RESULTS VIEW (shown when search active) -->
+        <main id="searchView" style="display:none">
+            <div class="home-section">
+                <div class="home-section-header">
+                    <h2 class="home-section-title" id="searchResultLabel">Hasil Pencarian</h2>
+                </div>
+                <div id="searchResults" class="song-grid"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="songDetailPage" class="page">
+        <button id="backToHomeFromDetailBtn" class="back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+        <div class="song-detail-container">
+            <img id="detailAlbumArt" src="https://placehold.co/200x200/3a3a4e/e0e0e0?text=Art" alt="Album Art" class="detail-album-art">
+            <h2 id="detailTrackTitle">Song Title</h2>
+            <p id="detailTrackArtist">Artist Name</p>
+            <p id="detailAlbumName">Album Name</p>
+            <button id="playFromDetailBtn" class="play-from-detail-btn"><i class="fas fa-play-circle"></i> Play</button>
+        </div>
+    </div>
+
+    <div id="playerPage" class="page">
+        <button id="backToHomeBtn" class="back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+        <div class="music-player-container">
+            <div class="music-player-box">
+                <div class="player-header">
+                    <img id="albumArt" src="https://placehold.co/100x100/3a3a4e/e0e0e0?text=Art" alt="Album Art" class="album-art-player">
+                    <div class="track-info-player">
+                        <h2 id="playerTrackTitle">Song Title</h2>
+                        <p id="playerTrackArtist">Artist Name</p>
+                    </div>
+                    <div class="player-header-actions">
+                        <button id="playerVisualizerBtn" class="player-action-btn" title="Visualizer">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
+                        <button id="playerFavoriteBtn" class="player-fav-btn" title="Add to Favorites">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lyrics Toolbar -->
+                <div class="lyrics-toolbar">
+                    <span class="lyrics-toolbar-label"><i class="fas fa-align-left"></i> Lyrics</span>
+                    <div class="lyrics-toolbar-actions">
+                        <button id="playerHideLyricsBtn" class="lyric-tool-btn" title="Sembunyikan lirik">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button id="playerKaraokeBtn" class="lyric-tool-btn" title="Mode Karaoke">
+                            <i class="fas fa-microphone-lines"></i>
+                        </button>
+                        <button id="playerShareBtn" class="lyric-tool-btn" title="Bagikan lagu">
+                            <i class="fas fa-share-nodes"></i>
+                        </button>
+                        <button id="playerDownloadBtn" class="lyric-tool-btn" title="Download lagu ini">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button id="playerSleepTimerBtn" class="lyric-tool-btn" title="Sleep Timer">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="lyricsContainer" class="lyrics-container">
+                    <p>Lyrics will appear here...</p>
+                </div>
+
+                <!-- Sleep timer bar -->
+                <div id="sleepTimerBar" class="sleep-timer-bar hidden">
+                    <i class="fas fa-moon"></i>
+                    <span id="sleepBarLabel">Timer aktif:</span>
+                    <span id="sleepBarCountdown" class="sleep-bar-time">--:--</span>
+                    <button id="cancelSleepBar" title="Cancel timer"><i class="fas fa-times"></i></button>
+                </div>
+
+                <div class="player-controls">
+                    <div class="progress-section-player">
+                        <div id="playerProgressBarContainer" class="progress-bar-container-player">
+                            <div id="playerProgressBar" class="progress-bar-player"></div>
+                        </div>
+                        <div class="time-display-player">
+                            <span id="playerCurrentTime">0:00</span>
+                            <span id="playerTotalDuration">0:00</span>
+                        </div> 
+                    </div>
+
+                    <div class="main-controls-player">
+                        <button id="playerPrevBtn" class="control-btn-player"><i class="fas fa-backward-step"></i></button>
+                        <button id="playerPlayPauseBtn" class="control-btn-player play-pause-player"><i class="fas fa-play"></i></button>
+                        <button id="playerNextBtn" class="control-btn-player"><i class="fas fa-forward-step"></i></button>
+                    </div>
+
+                    <div class="secondary-controls-player">
+                        <div class="repeat-shuffle-row">
+                            <button id="playerRepeatBtn" class="control-btn-player small-icon"><i class="fas fa-repeat"></i></button>
+                            <button id="playerShuffleBtn" class="control-btn-player small-icon"><i class="fas fa-shuffle"></i></button>
+                        </div>
+                        <div class="volume-speed-col">
+                            <div class="volume-control-player">
+                                <i class="fas fa-volume-down volume-icon-player"></i>
+                                <input type="range" id="playerVolumeSlider" class="volume-slider-player" min="0" max="1" step="0.01" value="0.8">
+                                <i class="fas fa-volume-up volume-icon-player ml-1"></i>
+                            </div>
+                            <div class="playback-speed-control">
+                                <i class="fas fa-tachometer-alt speed-icon"></i>
+                                <input type="range" id="playerSpeedSlider" class="speed-slider" min="0.5" max="2.0" step="0.25" value="1.0">
+                                <span id="currentSpeedDisplay">1.0x</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="footer-credit">@raull752</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Karaoke Mode Modal -->
+    <div id="karaokeModal" class="karaoke-modal hidden">
+        <div id="karaokeBgBlur" class="karaoke-bg-blur"></div>
+        <div class="karaoke-particles" id="karaokeParticles"></div>
+        <div class="karaoke-header">
+            <img id="karaokeArt" src="" class="karaoke-art" alt="">
+            <div class="karaoke-meta">
+                <div id="karaokeTitle" class="karaoke-title">—</div>
+                <div id="karaokeArtist" class="karaoke-artist">—</div>
+            </div>
+            <div class="karaoke-header-actions">
+                <button id="karaokeVisualizerToggle" class="karaoke-action-btn" title="Toggle visualizer">
+                    <i class="fas fa-chart-bar"></i>
+                </button>
+                <button id="karaokeClose" class="karaoke-action-btn karaoke-close-btn"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <canvas id="karaokeVizCanvas" class="karaoke-viz-canvas"></canvas>
+        <div class="karaoke-stage">
+            <div id="kPrev" class="k-line k-prev"></div>
+            <div class="k-curr-wrap">
+                <div id="kCurrHighlight" class="k-curr-highlight"></div>
+                <div id="kCurr" class="k-line k-curr"></div>
+            </div>
+            <div id="kNext" class="k-line k-next"></div>
+        </div>
+        <div class="karaoke-bottom">
+            <div class="karaoke-progress-wrap">
+                <span id="karaokeCurrTime" class="karaoke-time">0:00</span>
+                <div class="karaoke-progress">
+                    <div id="karaokeProgressFill" class="karaoke-progress-fill"></div>
+                    <div id="karaokeProgressThumb" class="karaoke-progress-thumb"></div>
+                </div>
+                <span id="karaokeTotalTime" class="karaoke-time">0:00</span>
+            </div>
+            <div class="karaoke-controls">
+                <button id="kPrevBtn" class="karaoke-ctrl-btn small"><i class="fas fa-backward-step"></i></button>
+                <button id="karaokePlayPause" class="karaoke-ctrl-btn main"><i class="fas fa-play"></i></button>
+                <button id="kNextBtn" class="karaoke-ctrl-btn small"><i class="fas fa-forward-step"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visualizer Modal -->
+    <div id="visualizerModal" class="visualizer-modal hidden">
+        <button id="visualizerClose" class="viz-close-btn"><i class="fas fa-times"></i></button>
+        <div class="viz-song-info">
+            <img id="vizArt" src="" class="viz-art" alt="">
+            <div>
+                <div id="vizTitle" class="viz-title">—</div>
+                <div id="vizArtist" class="viz-artist">—</div>
+            </div>
+        </div>
+        <canvas id="vizCanvas" class="viz-canvas"></canvas>
+        <div class="viz-style-row">
+            <button class="viz-style-btn active-viz-btn" data-style="bars">Bars</button>
+            <button class="viz-style-btn" data-style="wave">Wave</button>
+            <button class="viz-style-btn" data-style="circle">Circle</button>
+            <button class="viz-style-btn" data-style="particles">Particles</button>
+        </div>
+    </div>
+
+    <!-- Share Card Canvas (hidden, used to generate image) -->
+    <canvas id="shareCardCanvas" style="display:none;position:fixed;top:-9999px"></canvas>
+    <div id="nowPlayingBar" class="now-playing-bar hidden">
+        <img id="nowPlayingArt" src="" alt="" class="now-playing-art">
+        <div class="now-playing-info">
+            <div id="nowPlayingTitle" class="now-playing-title">—</div>
+            <div id="nowPlayingArtist" class="now-playing-artist">—</div>
+        </div>
+        <div class="now-playing-controls">
+            <button id="nowPlayingPrev" class="now-playing-btn"><i class="fas fa-backward-step"></i></button>
+            <button id="nowPlayingPlayPause" class="now-playing-btn now-playing-pp"><i class="fas fa-play"></i></button>
+            <button id="nowPlayingNext" class="now-playing-btn"><i class="fas fa-forward-step"></i></button>
+        </div>
+        <div id="nowPlayingProgress" class="now-playing-progress"><div id="nowPlayingBar_fill" class="now-playing-fill"></div></div>
+    </div>
+
+    <!-- Share Preview Modal -->
+    <div id="sharePreviewModal" class="share-preview-modal hidden">
+        <div class="share-preview-box">
+            <div class="share-preview-title">
+                <span><i class="fas fa-share-nodes" style="color:var(--accent);margin-right:0.5rem"></i>Bagikan Lagu</span>
+                <button id="shareModalClose" class="share-close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <img id="shareCardImg" src="" alt="Share Card">
+            <div class="share-action-row">
+                <button id="shareDownloadBtn" class="share-action-btn share-dl-btn"><i class="fas fa-download"></i> Simpan Gambar</button>
+                <button id="shareCopyBtn" class="share-action-btn share-copy-btn"><i class="fas fa-copy"></i> Salin Link</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resume Playback Toast -->
+    <div id="resumeToast" class="resume-toast">
+        <img id="resumeToastArt" src="" class="resume-toast-art" alt="">
+        <div class="resume-toast-info">
+            <div id="resumeToastTitle" class="resume-toast-title">—</div>
+            <div class="resume-toast-sub">Lanjut dari yang tadi?</div>
+        </div>
+        <button id="resumeToastBtn" class="resume-toast-btn"><i class="fas fa-play"></i> Lanjut</button>
+        <button id="resumeToastDismiss" class="resume-toast-dismiss"><i class="fas fa-times"></i></button>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
