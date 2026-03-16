@@ -3651,61 +3651,26 @@ html { scroll-behavior: smooth; }
 }
 
 /* ══════════════════════════════════════════════════════
-   APPLE MUSIC STYLE LYRIC GLOW
+   LYRIC GLOW — Apple Music line-level (no per-char)
 ══════════════════════════════════════════════════════ */
 .lyric-line {
-    color: rgba(255,255,255,0.28);
-    transition: color 0.5s ease, text-shadow 0.5s ease, transform 0.4s cubic-bezier(0.34,1.2,0.64,1), font-size 0.4s ease;
     display: block;
-    margin-bottom: 0.3em;
-    cursor: pointer;
-    padding: 0.08em 0;
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
+    color: rgba(255,255,255,0.3);
     font-size: 0.93rem;
-    line-height: 1.55;
+    font-weight: 400;
+    line-height: 1.6;
+    padding: 0.08em 0.3em;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color 0.35s ease, text-shadow 0.2s ease, transform 0.35s ease, opacity 0.35s ease, font-size 0.35s ease;
     transform-origin: left center;
+    margin-bottom: 0.1em;
+    opacity: 0.3;
 }
-.lyric-line:nth-child(4n) { margin-bottom: 0.9em; }
-.lyric-line:hover { color: rgba(255,255,255,0.55); }
+.lyric-line:hover { opacity: 0.6; }
+.lyric-line:nth-child(4n) { margin-bottom: 0.8em; }
 
-/* Active lyric — Apple Music glow effect */
-.lyric-line.highlight {
-    color: #fff !important;
-    font-weight: 700;
-    font-size: 1.02rem;
-    transform: scale(1.018);
-    text-shadow:
-        0 0 8px rgba(var(--lyric-r,183), var(--lyric-g,108), var(--lyric-b,255), 0.9),
-        0 0 20px rgba(var(--lyric-r,183), var(--lyric-g,108), var(--lyric-b,255), 0.55),
-        0 0 40px rgba(var(--lyric-r,183), var(--lyric-g,108), var(--lyric-b,255), 0.25),
-        0 1px 3px rgba(0,0,0,0.4);
-    animation: lyric-glow-breathe 1.2s ease-in-out infinite alternate;
-}
-@keyframes lyric-glow-breathe {
-    from {
-        text-shadow:
-            0 0 6px rgba(var(--lyric-r,183), var(--lyric-g,108), var(--lyric-b,255), 0.7),
-            0 0 16px rgba(var(--lyric-r,183), var(--lyric-g,108), var(--lyric-b,255), 0.4),
-            0 0 32px rgba(var(--lyric-r,183), var(--lyric-g,108), var(--lyric-b,255), 0.18);
-    }
-    to {
-        text-shadow:
-            0 0 12px rgba(var(--lyric-r,183), var(--lyric-g,108), var(--lyric-b,255), 1),
-            0 0 28px rgba(var(--lyric-r,183), var(--lyric-g,108), var(--lyric-b,255), 0.65),
-            0 0 55px rgba(var(--lyric-r,183), var(--lyric-g,108), var(--lyric-b,255), 0.3),
-            0 0 80px rgba(var(--lyric-r,183), var(--lyric-g,108), var(--lyric-b,255), 0.12);
-    }
-}
-/* Next upcoming line — slightly brighter hint */
-.lyric-line.lyric-upcoming {
-    color: rgba(255,255,255,0.48);
-    transform: scale(1.005);
-}
-/* Previous lines — fade out */
-.lyric-line.lyric-past { color: rgba(255,255,255,0.18); }
-
-/* ── Navbar Logout Button ────────────────────────────── */
+/* ── Navbar Logout/* ── Navbar Logout Button ────────────────────────────── */
 .navbar-logout-btn {
     color: #f87171 !important;
 }

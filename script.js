@@ -606,7 +606,6 @@ function showPlayerPage() {
         backgroundVideo.src = "";
         backgroundVideo.load();
     }
-    setTimeout(showPlayerKeyHint, 800);
 }
 
 // --- Home Page Logic ---
@@ -844,7 +843,7 @@ function loadSong(song) {
 }
 
 // New function to render lyrics
-// renderLyrics: new char-by-char version defined below
+// renderLyrics defined below
 
 
 function playTrack() {
@@ -949,40 +948,13 @@ audioPlayer.addEventListener('timeupdate', () => {
         playerProgressBar.style.width = `${progressPercent}%`;
         playerCurrentTime.textContent = formatTime(audioPlayer.currentTime);
         
-     const currentTime = audioPlayer.currentTime;
-        const lyricLines = lyricsContainer.querySelectorAll('.lyric-line');
-        let highlightedLine = null;
-
-        lyricLines.forEach((line, index) => {
-            const lineTime = parseFloat(line.getAttribute('data-time'));
-            // Determine when this line of lyrics ends. If this is the last line, assume it ends at the end of the song.
-            // Or, better, assume it ends just before the next line starts.
-            let nextLineTime = Infinity; 
-            if (index + 1 < lyricLines.length) {
-                nextLineTime = parseFloat(lyricLines[index + 1].getAttribute('data-time'));
-            }
-
-            if (currentTime >= lineTime && currentTime < nextLineTime) {
-                line.classList.add('highlight');
-                highlightedLine = line;
-            } else {
-                line.classList.remove('highlight');
-            }
-        });
-
-        // --- Auto-scroll lyrics only if highlighted line is not visible ---
-        if (highlightedLine) {
-            const containerRect = lyricsContainer.getBoundingClientRect();
-            const lineRect = highlightedLine.getBoundingClientRect();
-
-            // Check if the row is outside the container viewport
-            const isOutsideTop = lineRect.top < containerRect.top;
-            const isOutsideBottom = lineRect.bottom > containerRect.bottom;
-
-            if (isOutsideTop || isOutsideBottom) {
-                highlightedLine.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
+        // Apple Music lyric char glow
+        if (typeof updateLyricGlow === 'function') updateLyricGlow(audioPlayer.currentTime);
+        // Update karaoke if open
+        if (typeof updateKaraokeLines === 'function') updateKaraokeLines();
+        // Update mini now-playing bar progress
+        const fill = document.getElementById('nowPlayingBar_fill');
+        if (fill) fill.style.width = `${(audioPlayer.currentTime / audioPlayer.duration) * 100}%`;
     }
 });
 
@@ -1668,9 +1640,7 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') { closeSidebar(); closeSearch(); closeSleepModal(); }
 });
 
-// ── Bonus: Show keyboard shortcut hint ────────────────────
 // shown briefly when player opens
-
 
 
 // --- Hamburger Sidebar Logic ---
@@ -2854,139 +2824,112 @@ function renderStats() {
 function renderLyrics(lyrics) {
     lyricsContainer.innerHTML = '';
     if (!lyrics || !lyrics.length) {
-        lyricsContainer.innerHTML = '<p style="opacity:0.4;font-size:0.85rem;text-align:center;padding:1rem">Tidak ada lirik</p>';
+        lyricsContainer.innerHTML = '<p style="opacity:0.4;font-size:0.85rem;text-align:center;padding:2rem">Tidak ada lirik</p>';
         return;
     }
-    lyrics.forEach((line, lineIdx) => {
-        const span = document.createElement('span');
-        span.className = 'lyric-line';
-        span.setAttribute('data-time', line.time);
-        span.setAttribute('data-line-idx', lineIdx);
-        // Wrap each character in a span for individual glow
-        const chars = line.text.split('');
-        span.innerHTML = chars.map((ch, i) =>
-            ch === ' ' ? ' ' : `<span class="lyric-char" data-char-idx="${i}">${ch}</span>`
-        ).join('');
-        // Click to seek
-        span.addEventListener('click', () => { if (audioPlayer.duration) audioPlayer.currentTime = line.time; });
-        lyricsContainer.appendChild(span);
-        if (lineIdx % 4 === 3) {
+    lyrics.forEach((line, idx) => {
+        const el = document.createElement('span');
+        el.className = 'lyric-line';
+        el.setAttribute('data-time', line.time);
+        el.setAttribute('data-idx', idx);
+        el.textContent = line.text;
+        el.addEventListener('click', () => { if (audioPlayer.duration) audioPlayer.currentTime = line.time; });
+        lyricsContainer.appendChild(el);
+        if (idx % 4 === 3) {
             const gap = document.createElement('span');
-            gap.style.display = 'block'; gap.style.height = '0.8em';
+            gap.style.cssText = 'display:block;height:0.8em';
             lyricsContainer.appendChild(gap);
         }
     });
 }
 
-// Progressive character glow — called from timeupdate
-let lastGlowLineIdx = -1;
-let lastGlowProgress = -1;
-function updateLyricCharGlow(currentTime) {
-    const lyricLines = lyricsContainer.querySelectorAll('.lyric-line');
-    if (!lyricLines.length) return;
+function updateLyricGlow(currentTime) {
+    const lines = lyricsContainer.querySelectorAll('.lyric-line');
+    if (!lines.length) return;
 
-    // Get current accent RGB for glow color
-    const root = document.documentElement;
-    const accentStr = getComputedStyle(root).getPropertyValue('--accent').trim() || 'rgb(183,108,255)';
-    const rgb = accentStr.match(/\d+/g) || ['183','108','255'];
-    root.style.setProperty('--lyric-r', rgb[0]);
-    root.style.setProperty('--lyric-g', rgb[1]);
-    root.style.setProperty('--lyric-b', rgb[2]);
-
-    // Get audio energy for glow intensity
+    // Get audio energy for breathing effect
     let energy = 0.5;
     if (eqInited && analyserNode) {
-        const d = new Uint8Array(analyserNode.frequencyBinCount);
-        analyserNode.getByteFrequencyData(d);
-        energy = d.slice(0,64).reduce((s,v)=>s+v,0) / (64*255);
+        try {
+            const d = new Uint8Array(analyserNode.frequencyBinCount);
+            analyserNode.getByteFrequencyData(d);
+            energy = d.slice(0, 64).reduce((s, v) => s + v, 0) / (64 * 255);
+        } catch(e) {}
     }
 
+    // Get accent color for glow
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#b76cff';
+    const rgb = accent.match(/\d+/g) || ['183','108','255'];
+
     let activeIdx = 0;
-    for (let i = 0; i < lyricLines.length; i++) {
-        const t = parseFloat(lyricLines[i].getAttribute('data-time'));
-        if (currentTime >= t) activeIdx = i;
+    for (let i = 0; i < lines.length; i++) {
+        if (currentTime >= parseFloat(lines[i].getAttribute('data-time'))) activeIdx = i;
         else break;
     }
 
-    lyricLines.forEach((line, i) => {
-        const chars = line.querySelectorAll('.lyric-char');
-        if (!chars.length) return;
-
-        if (i < activeIdx) {
-            // Past lines — all lit but faded
-            line.classList.remove('highlight','lyric-upcoming');
-            line.classList.add('lyric-past');
-            chars.forEach(c => { c.style.opacity='0.22'; c.style.textShadow='none'; c.style.color=''; });
-        } else if (i > activeIdx) {
-            // Upcoming lines
-            line.classList.remove('highlight','lyric-past');
-            const dist = i - activeIdx;
-            line.classList.toggle('lyric-upcoming', dist === 1);
-            chars.forEach(c => { c.style.opacity = dist===1?'0.42':'0.22'; c.style.textShadow='none'; c.style.color=''; });
+    lines.forEach((line, i) => {
+        if (i === activeIdx) {
+            // Active — glow breathes with audio energy
+            const size1 = 8 + energy * 18;
+            const size2 = 16 + energy * 32;
+            const alpha1 = 0.75 + energy * 0.25;
+            const alpha2 = 0.4 + energy * 0.3;
+            line.style.color = '#fff';
+            line.style.fontWeight = '700';
+            line.style.fontSize = '1.02rem';
+            line.style.transform = 'scale(1.02)';
+            line.style.transformOrigin = 'left center';
+            line.style.textShadow = `0 0 ${size1}px rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha1}), 0 0 ${size2}px rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha2}), 0 0 ${size2*2}px rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha2*0.4})`;
+            line.style.opacity = '1';
+            line.style.transition = 'color 0.35s, text-shadow 0.2s, transform 0.35s, font-size 0.35s';
+        } else if (i === activeIdx + 1) {
+            // Next line — slightly bright preview
+            line.style.color = 'rgba(255,255,255,0.5)';
+            line.style.fontWeight = '500';
+            line.style.fontSize = '0.93rem';
+            line.style.transform = 'scale(1)';
+            line.style.textShadow = 'none';
+            line.style.opacity = '0.5';
+            line.style.transition = 'all 0.4s';
+        } else if (i < activeIdx) {
+            // Past lines — faded
+            line.style.color = 'rgba(255,255,255,0.2)';
+            line.style.fontWeight = '400';
+            line.style.fontSize = '0.93rem';
+            line.style.transform = 'scale(1)';
+            line.style.textShadow = 'none';
+            line.style.opacity = '0.2';
+            line.style.transition = 'all 0.5s';
         } else {
-            // Active line — progressive character reveal
-            line.classList.remove('lyric-past','lyric-upcoming');
-            line.classList.add('highlight');
-
-            const lineStart = parseFloat(line.getAttribute('data-time'));
-            const nextLine = lyricLines[i+1];
-            const lineEnd = nextLine ? parseFloat(nextLine.getAttribute('data-time')) : lineStart + 4;
-            const lineDur = lineEnd - lineStart;
-            const progress = Math.min(1, Math.max(0, (currentTime - lineStart) / lineDur));
-
-            const totalChars = chars.length;
-            chars.forEach((ch, ci) => {
-                const charThreshold = ci / totalChars;
-                const glowStrength = Math.min(1, (progress - charThreshold) / (1.2 / totalChars));
-
-                if (glowStrength <= 0) {
-                    ch.style.opacity = '0.25';
-                    ch.style.color = 'rgba(255,255,255,0.25)';
-                    ch.style.textShadow = 'none';
-                } else if (glowStrength >= 1) {
-                    // Fully lit
-                    const g = 0.7 + energy * 0.3;
-                    ch.style.opacity = '1';
-                    ch.style.color = '#fff';
-                    ch.style.textShadow = `0 0 ${6+energy*14}px rgba(${rgb[0]},${rgb[1]},${rgb[2]},${g}), 0 0 ${12+energy*28}px rgba(${rgb[0]},${rgb[1]},${rgb[2]},${g*0.6}), 0 0 ${24+energy*40}px rgba(${rgb[0]},${rgb[1]},${rgb[2]},${g*0.25})`;
-                    ch.style.transition = 'none';
-                } else {
-                    // Transitioning — glow building up
-                    const alpha = glowStrength * (0.7 + energy * 0.3);
-                    ch.style.opacity = `${0.25 + glowStrength * 0.75}`;
-                    ch.style.color = `rgba(255,255,255,${0.25 + glowStrength * 0.75})`;
-                    ch.style.textShadow = `0 0 ${glowStrength * (8+energy*16)}px rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha}), 0 0 ${glowStrength * (16+energy*32)}px rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha*0.5})`;
-                    ch.style.transition = `opacity 0.15s, color 0.15s, text-shadow 0.15s`;
-                }
-            });
-
-            // Auto-scroll to keep active line in view
-            const containerRect = lyricsContainer.getBoundingClientRect();
-            const lineRect = line.getBoundingClientRect();
-            if (lineRect.top < containerRect.top + 30 || lineRect.bottom > containerRect.bottom - 30) {
-                line.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            // Far future lines
+            line.style.color = 'rgba(255,255,255,0.3)';
+            line.style.fontWeight = '400';
+            line.style.fontSize = '0.93rem';
+            line.style.transform = 'scale(1)';
+            line.style.textShadow = 'none';
+            line.style.opacity = '0.3';
+            line.style.transition = 'all 0.5s';
         }
     });
+
+    // Auto-scroll active line into center view
+    if (lines[activeIdx]) {
+        const cr = lyricsContainer.getBoundingClientRect();
+        const lr = lines[activeIdx].getBoundingClientRect();
+        if (lr.bottom > cr.bottom - 20 || lr.top < cr.top + 20) {
+            lines[activeIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
 }
+
+
 
 // ══════════════════════════════════════════════════════════
 // CSS for lyric chars
 // ══════════════════════════════════════════════════════════
-const lyricCharStyle = document.createElement('style');
-lyricCharStyle.textContent = `
-.lyric-char { display: inline; transition: opacity 0.15s, color 0.15s, text-shadow 0.15s; }
-.lyric-line { cursor: pointer; padding: 0.12em 0; border-radius: 4px; }
-.lyric-line:hover { background: rgba(255,255,255,0.03); }
-.profile-section-title { font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); padding:0.9rem 0.1rem 0.35rem; }
-.profile-custom-row { display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.5rem; }
-.profile-custom-item { display:flex; flex-direction:column; gap:4px; }
-.profile-custom-label { font-size:0.68rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em; }
-`;
-document.head.appendChild(lyricCharStyle);
 
 // ══════════════════════════════════════════════════════════
-// updateLyricCharGlow hooked in timeupdate at bottom
+
 
 // ══════════════════════════════════════════════════════════
 // INIT
@@ -3022,7 +2965,40 @@ function init() {
             console.error('Init error:', e);
         } finally {
             hideSplash();
+            // Show onboarding after splash gone
+            setTimeout(checkFirstVisit, 700);
         }
     }, 400);
 }
+// ══════════════════════════════════════════════════════════
+// ONBOARDING — show on first visit
+// ══════════════════════════════════════════════════════════
+function showOnboarding() {
+    const modal = document.getElementById('onboardingModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('onboardLoginBtn').onclick = () => {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        sessionStorage.setItem('zaymix_onboard_done','1');
+        openLoginModal();
+    };
+    document.getElementById('onboardGuestBtn').onclick = () => {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        sessionStorage.setItem('zaymix_onboard_done','1');
+        showToast('👤 Mode tamu aktif');
+    };
+}
+
+function checkFirstVisit() {
+    // Show every time unless already logged in
+    if (!currentUser) {
+        const dismissed = sessionStorage.getItem('zaymix_onboard_done');
+        if (!dismissed) showOnboarding();
+    }
+}
+
+
 init();

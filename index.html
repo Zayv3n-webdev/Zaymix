@@ -390,9 +390,10 @@
                     </div>
                     <div class="req-field">
                         <label class="req-label"><i class="fas fa-image"></i> Screenshot (opsional)</label>
-                        <label class="bg-upload-label" style="margin-top:0.25rem" id="bugImageLabel">
-                            <i class="fas fa-upload"></i> <span id="bugImageLabelText">Pilih gambar screenshot...</span>
-                            <input type="file" id="bugImageInput" accept="image/*" class="hidden">
+                        <label class="bg-upload-label" id="bugImageLabel" style="cursor:pointer;width:100%;box-sizing:border-box">
+                            <i class="fas fa-upload"></i>
+                            <span id="bugImageLabelText">Pilih gambar screenshot...</span>
+                            <input type="file" id="bugImageInput" accept="image/*" style="display:none;position:absolute;width:0;height:0;opacity:0">
                         </label>
                     </div>
                     <button id="submitBugBtn" class="req-submit-btn" style="background:linear-gradient(135deg,#dc2626,#f87171)">
@@ -776,6 +777,35 @@
         </div>
         <button id="resumeToastBtn" class="resume-toast-btn"><i class="fas fa-play"></i> Lanjut</button>
         <button id="resumeToastDismiss" class="resume-toast-dismiss"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Welcome / Onboarding Modal -->
+    <div id="onboardingModal" class="login-modal hidden">
+        <div class="login-box" style="max-width:380px;text-align:center">
+            <div style="margin-bottom:1.2rem">
+                <i class="fas fa-headphones" style="font-size:2.8rem;color:var(--accent);display:block;margin-bottom:0.75rem;filter:drop-shadow(0 0 20px rgba(183,108,255,0.5))"></i>
+                <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--text-primary);margin-bottom:0.3rem">Zaymix</div>
+                <div style="font-size:0.8rem;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase">life needs music</div>
+            </div>
+            <div style="background:rgba(183,108,255,0.08);border:1px solid rgba(183,108,255,0.2);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.2rem">
+                <div style="font-size:0.78rem;color:var(--text-muted);line-height:1.6">
+                    🎵 Putar lagu favoritmu<br>
+                    🎤 Mode Karaoke & Lirik Glow<br>
+                    📊 Statistik mendengarkan<br>
+                    💜 Favorit & Playlist pribadi
+                </div>
+            </div>
+            <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:0.65rem 0.9rem;margin-bottom:1.2rem;font-size:0.75rem;color:#fde68a;display:flex;align-items:center;gap:0.5rem">
+                <i class="fas fa-tools" style="color:#fbbf24;flex-shrink:0"></i>
+                <span>Aplikasi masih dalam tahap pengembangan aktif. Fitur dapat berubah sewaktu-waktu.</span>
+            </div>
+            <button id="onboardLoginBtn" class="auth-submit-btn" style="margin-bottom:0.6rem">
+                <i class="fas fa-user-circle"></i> Login / Buat Akun
+            </button>
+            <button id="onboardGuestBtn" class="auth-guest-btn">
+                <i class="fas fa-user-secret"></i> Lanjutkan sebagai Tamu
+            </button>
+        </div>
     </div>
 
     <audio id="audioPlayer"></audio>
