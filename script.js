@@ -949,13 +949,40 @@ audioPlayer.addEventListener('timeupdate', () => {
         playerProgressBar.style.width = `${progressPercent}%`;
         playerCurrentTime.textContent = formatTime(audioPlayer.currentTime);
         
-        // Apple Music lyric char glow
-        if (typeof updateLyricCharGlow === 'function') updateLyricCharGlow(audioPlayer.currentTime);
-        // Update karaoke if open
-        if (typeof updateKaraokeLines === 'function') updateKaraokeLines();
-        // Update mini now-playing bar progress
-        const fill = document.getElementById('nowPlayingBar_fill');
-        if (fill) fill.style.width = `${(audioPlayer.currentTime / audioPlayer.duration) * 100}%`;
+     const currentTime = audioPlayer.currentTime;
+        const lyricLines = lyricsContainer.querySelectorAll('.lyric-line');
+        let highlightedLine = null;
+
+        lyricLines.forEach((line, index) => {
+            const lineTime = parseFloat(line.getAttribute('data-time'));
+            // Determine when this line of lyrics ends. If this is the last line, assume it ends at the end of the song.
+            // Or, better, assume it ends just before the next line starts.
+            let nextLineTime = Infinity; 
+            if (index + 1 < lyricLines.length) {
+                nextLineTime = parseFloat(lyricLines[index + 1].getAttribute('data-time'));
+            }
+
+            if (currentTime >= lineTime && currentTime < nextLineTime) {
+                line.classList.add('highlight');
+                highlightedLine = line;
+            } else {
+                line.classList.remove('highlight');
+            }
+        });
+
+        // --- Auto-scroll lyrics only if highlighted line is not visible ---
+        if (highlightedLine) {
+            const containerRect = lyricsContainer.getBoundingClientRect();
+            const lineRect = highlightedLine.getBoundingClientRect();
+
+            // Check if the row is outside the container viewport
+            const isOutsideTop = lineRect.top < containerRect.top;
+            const isOutsideBottom = lineRect.bottom > containerRect.bottom;
+
+            if (isOutsideTop || isOutsideBottom) {
+                highlightedLine.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
     }
 });
 
@@ -1643,10 +1670,7 @@ document.addEventListener('keydown', (e) => {
 
 // ── Bonus: Show keyboard shortcut hint ────────────────────
 // shown briefly when player opens
-function showPlayerKeyHint() {
-    if (window.innerWidth < 600) return; // no hint on mobile
-    showToast('⌨️ Space=play/pause · ←→=skip · ↑↓=volume · F=favorit');
-}
+
 
 
 // --- Hamburger Sidebar Logic ---
